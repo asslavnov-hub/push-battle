@@ -2,238 +2,461 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#080d18">
-  <title>Push Battle</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; background: #080d18; color: #f4f7ff;
-      font-family: Arial, sans-serif;
-    }
-    header {
-      display: flex; justify-content: space-between;
-      align-items: center; padding: 20px;
-      border-bottom: 1px solid #1d2b42;
-    }
-    .logo { font-size: 22px; font-weight: 900; }
-    .logo span { color: #28d7ff; }
-    button {
-      color: white; background: #14233a; border: 1px solid #2a4262;
-      border-radius: 12px; padding: 12px 16px;
-      font-size: 15px; cursor: pointer;
-    }
-    button:active { transform: scale(.98); }
-    .lang { color: #28d7ff; }
-    main { max-width: 650px; margin: auto; padding: 28px 18px; }
-    .tag {
-      color: #28d7ff; font-size: 12px; letter-spacing: 2px;
-      font-weight: bold;
-    }
-    h1 { font-size: clamp(36px, 9vw, 58px); margin: 14px 0; }
-    h1 span { color: #28d7ff; }
-    p { color: #9eacc3; line-height: 1.6; }
-    .primary {
-      width: 100%; background: #167dff; border: 0;
-      padding: 17px; font-weight: bold; margin-top: 12px;
-    }
-    .panel {
-      background: #0e1727; border: 1px solid #22344f;
-      border-radius: 18px; padding: 20px; margin-top: 22px;
-    }
-    .panel h2 { margin-top: 0; }
-    .stats { display: flex; gap: 10px; }
-    .stat {
-      flex: 1; background: #101e32; padding: 14px;
-      border-radius: 12px; min-width: 0;
-    }
-    .number { font-size: 23px; font-weight: bold; color: #28d7ff; }
-    .track {
-      height: 12px; background: #24344b;
-      border-radius: 20px; overflow: hidden; margin: 15px 0;
-    }
-    .fill {
-      height: 100%; width: 50%;
-      background: linear-gradient(90deg, #167dff, #28e4ff);
-      border-radius: 20px; transition: width .3s;
-    }
-    .camera {
-      min-height: 210px; background: #050910;
-      border: 1px solid #243650; border-radius: 14px;
-      display: flex; align-items: center; justify-content: center;
-      text-align: center; padding: 18px; margin-top: 14px;
-    }
-    .camera video {
-      width: 100%; border-radius: 10px; display: none;
-    }
-    .secondary { width: 100%; margin-top: 10px; }
-    .hidden { display: none; }
-    .muted { font-size: 13px; }
-    footer { text-align: center; padding: 25px; color: #73839c; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#08090d">
+<title>Push Battle</title>
+<style>
+:root {
+  --bg:#08090d; --panel:#101219; --line:#292b35;
+  --orange:#ff6a00; --gold:#ffad35; --muted:#9295a5;
+  --white:#f7f7fb; --glow:0 0 24px #ff650033;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; background:var(--bg); color:var(--white);
+  font-family:Inter,system-ui,-apple-system,Arial,sans-serif;
+  min-height:100vh;
+}
+button,input { font:inherit; }
+button { cursor:pointer; color:inherit; }
+button:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
+.app { max-width:520px; min-height:100vh; margin:auto; padding-bottom:95px;
+  background:radial-gradient(ellipse at 50% 0%,#311605 0%,#0b0c11 36%,#08090d 70%); }
+header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:20px 20px 15px; position:sticky; top:0; z-index:5;
+  background:#090a0dee; backdrop-filter:blur(16px);
+  border-bottom:1px solid #24242a;
+}
+.logo { font-size:19px; font-weight:950; font-style:italic; letter-spacing:1px; }
+.logo span { color:var(--orange); }
+.bolt { color:var(--gold); margin-right:5px; }
+.lang {
+  background:#14151a; border:1px solid #63310e; color:var(--muted);
+  border-radius:30px; padding:5px; display:flex; gap:3px;
+}
+.lang button { border:0; background:transparent; border-radius:20px;
+  padding:6px 10px; font-size:11px; }
+.lang button.active { background:var(--orange); color:white; box-shadow:0 0 14px #ff650055; }
+main { padding:22px 17px 20px; }
+.screen { display:none; animation:appear .25s ease; }
+.screen.active { display:block; }
+@keyframes appear { from {opacity:0; transform:translateY(5px)} to {opacity:1;transform:none} }
+.eyebrow { color:var(--orange); font-size:10px; letter-spacing:2.4px; font-weight:850; }
+h1 { font-size:clamp(35px,10vw,52px); line-height:.99; letter-spacing:-2px;
+  font-weight:950; margin:13px 0; }
+h1 em { color:var(--orange); font-style:normal; }
+h2 { font-size:20px; margin:0 0 14px; letter-spacing:-.5px; }
+h3 { font-size:14px; margin:0 0 7px; }
+p { color:var(--muted); line-height:1.55; font-size:13px; }
+.hero {
+  position:relative; overflow:hidden; border:1px solid #63300f;
+  border-radius:22px; min-height:215px; padding:23px 20px;
+  background:radial-gradient(ellipse at 90% 30%,#6a290c 0%,#25150f 25%,#101116 68%);
+  box-shadow:var(--glow);
+}
+.hero:after {
+  content:"⚡"; position:absolute; right:5px; top:10px;
+  color:#ff7900; opacity:.13; font-size:150px; transform:rotate(-12deg);
+}
+.hero > * { position:relative; z-index:1; }
+.hero p { max-width:265px; }
+.btn {
+  display:flex; align-items:center; justify-content:center; gap:9px;
+  width:100%; border-radius:13px; border:1px solid #ff9b35;
+  padding:15px; font-weight:850; font-size:13px;
+  background:linear-gradient(110deg,#ff4e00,#ff9b16);
+  box-shadow:0 0 23px #ff65002b; color:white;
+}
+.btn:active { transform:scale(.985); }
+.btn.outline { background:transparent; color:var(--orange); box-shadow:none; border-color:var(--orange); }
+.btn.dark { background:#14151c; border-color:#30313b; box-shadow:none; }
+.card {
+  background:linear-gradient(145deg,#12141c,#0c0d12);
+  border:1px solid var(--line); border-radius:17px;
+  padding:16px; margin-top:15px;
+}
+.row { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.muted { color:var(--muted); font-size:12px; }
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.stat {
+  background:#10121a; border:1px solid #292b35; border-radius:14px;
+  padding:15px 12px;
+}
+.stat strong { display:block; font-size:24px; margin-bottom:4px; }
+.orange { color:var(--orange); }
+.iconbox {
+  width:39px; height:39px; display:grid; place-items:center; flex-shrink:0;
+  border:1px solid #66310e; border-radius:12px;
+  background:#27160e; color:var(--orange); font-size:20px;
+}
+.nav {
+  position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+  width:100%; max-width:520px; z-index:10; display:grid;
+  grid-template-columns:repeat(4,1fr); gap:2px;
+  padding:10px 8px calc(10px + env(safe-area-inset-bottom));
+  background:#0b0c11f5; border-top:1px solid #30303a;
+  backdrop-filter:blur(20px);
+}
+.nav button {
+  border:0; background:transparent; color:#8d91a1;
+  display:flex; flex-direction:column; align-items:center; gap:5px;
+  font-size:10px; padding:5px 0;
+}
+.nav button .navicon { font-size:21px; }
+.nav button.active { color:var(--orange); text-shadow:0 0 12px #ff650066; }
+.track { height:10px; background:#30313a; border-radius:20px; overflow:hidden; }
+.fill { width:50%; height:100%; background:linear-gradient(90deg,#ff4b00,#ffba35);
+  border-radius:20px; box-shadow:0 0 12px #ff6a00; transition:width .25s; }
+.camera {
+  min-height:260px; border:1px solid var(--orange); border-radius:17px;
+  overflow:hidden; position:relative; background:#050609;
+  box-shadow:0 0 22px #ff650026; display:flex; align-items:center;
+  justify-content:center; text-align:center; margin-top:14px;
+}
+.camera video { width:100%; height:100%; max-height:420px; object-fit:cover; display:none; }
+.camera-message { padding:25px; }
+.camera-message .camicon { font-size:42px; }
+.camera-label {
+  position:absolute; top:10px; left:50%; transform:translateX(-50%);
+  background:#100d0af0; border:1px solid #87400f; border-radius:20px;
+  padding:7px 12px; font-size:11px; z-index:2; white-space:nowrap;
+}
+.score { font-size:32px; font-weight:950; }
+input {
+  width:100%; border:1px solid #30313b; border-radius:12px;
+  background:#090a0e; color:white; padding:13px; outline:none;
+}
+input:focus { border-color:var(--orange); }
+.avatar {
+  width:94px; height:94px; margin:8px auto 15px; border-radius:50%;
+  border:3px solid var(--orange); display:grid; place-items:center;
+  background:radial-gradient(circle,#42200e,#101116 72%);
+  box-shadow:0 0 25px #ff650044; font-size:43px;
+}
+.xp { height:8px; background:#2a2b35; border-radius:10px; overflow:hidden; margin-top:12px; }
+.xp span { display:block; height:100%; width:64%; background:var(--orange); }
+.framegrid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+.frameitem { text-align:center; background:#101219; border:1px solid #292b35; border-radius:14px; padding:15px 8px; }
+.frameart { font-size:44px; filter:drop-shadow(0 0 10px #ff6500); margin:5px; }
+.frameitem p { font-size:11px; margin:5px 0 0; }
+.pill { display:inline-block; border:1px solid #60300f; border-radius:20px;
+  color:var(--orange); font-size:10px; padding:4px 8px; }
+.listitem { display:flex; align-items:center; gap:11px; padding:12px 0; border-bottom:1px solid #262731; }
+.listitem:last-child { border-bottom:0; }
+.rank { color:var(--orange); font-weight:900; width:20px; }
+.probox { border:1px solid var(--orange); box-shadow:var(--glow); }
+.price { font-size:35px; font-weight:950; }
+.smallnote { font-size:11px; color:var(--muted); text-align:center; }
+</style>
 </head>
 <body>
+<div class="app">
 <header>
-  <div class="logo">PUSH <span>BATTLE</span></div>
-  <button class="lang" id="language" onclick="toggleLanguage()">RU / EN</button>
+  <div class="logo"><span class="bolt">ϟ</span>PUSH <span>BATTLE</span></div>
+  <div class="lang">
+    <button id="ruBtn" class="active" onclick="setLang('ru')">RU</button>
+    <button id="enBtn" onclick="setLang('en')">EN</button>
+  </div>
 </header>
 
 <main>
-  <section id="home">
-    <div class="tag" data-i18n="tag">ТВОЯ СИЛА. ТВОЯ ПОБЕДА.</div>
-    <h1 data-i18n="headline">БРОСЬ<br>ВЫЗОВ.<br><span>ПОБЕДИ.</span></h1>
-    <p data-i18n="intro">Соревнуйся в отжиманиях с игроками онлайн. Каждый повтор приближает тебя к победе.</p>
-    <button class="primary" onclick="showDuel()" data-i18n="start">⚡ НАЙТИ СОПЕРНИКА</button>
+<section class="screen active" id="home">
+  <div class="hero">
+    <div class="eyebrow" data-t="tag">ТВОЯ СИЛА. ТВОЯ ПОБЕДА.</div>
+    <h1 data-t="headline">БРОСЬ ВЫЗОВ<br><em>СЕБЕ И ДРУГИМ</em></h1>
+    <p data-t="intro">Отжимайся. Побеждай. Развивайся. Стань сильнее каждый день.</p>
+    <button class="btn" onclick="navigate('duel')" data-t="find">⚡ Найти соперника　›</button>
+  </div>
 
-    <div class="panel">
-      <h2 data-i18n="ready">Готов к битве?</h2>
-      <div class="stats">
-        <div class="stat">
-          <div class="number">1 vs 1</div>
-          <div class="muted" data-i18n="format">Формат дуэли</div>
-        </div>
-        <div class="stat">
-          <div class="number">PRO</div>
-          <div class="muted" data-i18n="premium">299 ₽ / месяц</div>
-        </div>
-      </div>
+  <div class="grid2" style="margin-top:14px">
+    <div class="stat"><span class="muted" data-t="yourWins">ТВОИ ПОБЕДЫ</span><strong>0</strong><span class="muted" data-t="startToday">Начни сегодня</span></div>
+    <div class="stat"><span class="muted" data-t="yourRank">ТВОЙ РЕЙТИНГ</span><strong class="orange">—</strong><span class="muted" data-t="joinBattle">Войди в игру</span></div>
+  </div>
+
+  <div class="card">
+    <div class="row"><div><div class="eyebrow">PUSH BATTLE</div><h2 style="margin:6px 0" data-t="daily">Ежедневный вызов</h2><p style="margin:0" data-t="dailyDesc">Сделай 30 отжиманий сегодня</p></div><div class="iconbox">⚡</div></div>
+    <div class="track" style="margin-top:15px"><div class="fill" style="width:0%"></div></div>
+    <p class="muted" data-t="notStarted">0 / 30 повторений · Ещё впереди</p>
+  </div>
+
+  <div class="card probox">
+    <div class="row"><div><div class="eyebrow">✦ PUSH BATTLE PRO</div><h2 style="margin:7px 0" data-t="trainSmarter">Тренируйся умнее</h2><p style="margin:0" data-t="proShort">Планы, аналитика и эксклюзивные рамки.</p></div><div class="price">299<span style="font-size:13px"> ₽</span></div></div>
+    <button class="btn" style="margin-top:15px" onclick="navigate('pro')" data-t="learnPro">Открыть PRO　›</button>
+  </div>
+</section>
+
+<section class="screen" id="duel">
+  <div class="row"><div><div class="eyebrow" data-t="arena">АРЕНА</div><h1 style="font-size:32px" data-t="duelTitle">ДУЭЛЬ <em>1 НА 1</em></h1></div><span class="pill">LIVE DEMO</span></div>
+  <div class="card">
+    <div class="row">
+      <div><div class="muted" data-t="you">ТЫ</div><div class="score orange" id="myScore">0</div></div>
+      <div style="text-align:center"><div class="muted" data-t="time">ВРЕМЯ</div><div class="score" id="timer">00:00</div></div>
+      <div style="text-align:right"><div class="muted" data-t="opponent">СОПЕРНИК</div><div class="score" id="opScore">0</div></div>
     </div>
+    <div class="track" style="margin-top:14px"><div class="fill" id="progress"></div></div>
+    <div class="row muted" style="margin-top:7px"><span id="myPercent">50%</span><span id="opPercent">50%</span></div>
+  </div>
+  <div class="camera">
+    <div class="camera-label">◉ <span data-t="cameraLabel">ТВОЯ КАМЕРА</span></div>
+    <div class="camera-message" id="cameraMessage"><div class="camicon">⌁</div><h3 data-t="cameraTitle">Готов к раунду?</h3><p data-t="cameraDesc">Поставь телефон так, чтобы тело было видно сбоку целиком.</p></div>
+    <video id="video" autoplay playsinline muted></video>
+  </div>
+  <button class="btn" style="margin-top:13px" onclick="startCamera()" data-t="enableCamera">Включить камеру</button>
+  <button class="btn outline" style="margin-top:9px" onclick="demoRep()" data-t="testRep">Тестовый повтор +1</button>
+  <p class="smallnote" data-t="demoNote">Тестовый счёт не является автоматическим распознаванием. Онлайн-соперник ещё не подключён.</p>
+</section>
 
-    <div class="panel">
-      <h2 data-i18n="profile">Твой профиль</h2>
-      <p data-i18n="profileText">Выбери никнейм и стань легендой арены.</p>
-      <input id="nickname" maxlength="20" placeholder="Твой никнейм"
-        style="width:100%;padding:13px;border-radius:10px;border:1px solid #2a4262;background:#080d18;color:white">
-      <button class="secondary" onclick="saveNickname()" data-i18n="save">Сохранить никнейм</button>
-      <p id="savedName" class="muted"></p>
+<section class="screen" id="rating">
+  <div class="eyebrow" data-t="leaderboard">ТАБЛИЦА ЛИДЕРОВ</div><h1 style="font-size:36px" data-t="ratingTitle">ТОП <em>ИГРОКОВ</em></h1>
+  <div class="card">
+    <div class="row"><h2 data-t="weekly">Эта неделя</h2><span class="pill">TOP 10</span></div>
+    <div class="listitem"><span class="rank">01</span><div class="iconbox">♛</div><div style="flex:1"><b>MaxPower</b><div class="muted" data-t="champion">Чемпион</div></div><b>1245</b></div>
+    <div class="listitem"><span class="rank">02</span><div class="iconbox">⚡</div><div style="flex:1"><b>IronMax</b><div class="muted" data-t="fighter">Боец</div></div><b>1180</b></div>
+    <div class="listitem"><span class="rank">03</span><div class="iconbox">✦</div><div style="flex:1"><b>BeastMode</b><div class="muted" data-t="fighter">Боец</div></div><b>1102</b></div>
+    <div class="listitem"><span class="rank">04</span><div class="iconbox">◈</div><div style="flex:1"><b>PushMaster</b></div><b>980</b></div>
+    <div class="listitem"><span class="rank">05</span><div class="iconbox">⚔</div><div style="flex:1"><b>SportLife</b></div><b>945</b></div>
+  </div>
+  <p class="smallnote" data-t="sampleData">Пример оформления рейтинга — данные пока демонстрационные.</p>
+</section>
+
+<section class="screen" id="profile">
+  <div class="eyebrow" data-t="profileLabel">ТВОЯ ЛИЧНОСТЬ</div><h1 style="font-size:36px" data-t="profileTitle">МОЙ <em>ПРОФИЛЬ</em></h1>
+  <div class="card" style="text-align:center">
+    <div class="avatar">♟</div>
+    <h2 id="profileName">IronMax</h2>
+    <span class="pill" data-t="rookie">НОВИЧОК</span>
+    <div class="xp"><span></span></div><p data-t="xp">320 / 500 XP · Уровень 3</p>
+    <div class="grid2">
+      <div class="stat"><strong>0</strong><span class="muted" data-t="wins">Победы</span></div>
+      <div class="stat"><strong id="profileReps">0</strong><span class="muted" data-t="reps">Повторения</span></div>
     </div>
-  </section>
+  </div>
+  <div class="card">
+    <h2 data-t="nickname">Твой никнейм</h2>
+    <input id="nickname" maxlength="20" placeholder="Введи никнейм">
+    <button class="btn" style="margin-top:10px" onclick="saveNickname()" data-t="save">Сохранить профиль</button>
+  </div>
+  <div class="card" onclick="navigate('frames')" style="cursor:pointer">
+    <div class="row"><div><h3 data-t="myFrames">Мои рамки</h3><p style="margin:0" data-t="frameDesc">Собирай уникальные стили</p></div><div class="frameart">◈</div></div>
+  </div>
+  <div class="card" onclick="navigate('pro')" style="cursor:pointer">
+    <div class="row"><div><h3>PUSH BATTLE PRO</h3><p style="margin:0" data-t="proDesc">Открой новые возможности</p></div><span class="orange">›</span></div>
+  </div>
+</section>
 
-  <section id="duel" class="hidden">
-    <button onclick="showHome()" data-i18n="back">← Назад</button>
-    <h2 data-i18n="duelTitle">ДУЭЛЬ 1 НА 1</h2>
-    <p id="status" data-i18n="searching">Поиск соперника...</p>
+<section class="screen" id="frames">
+  <div class="eyebrow" data-t="collection">КОЛЛЕКЦИЯ</div><h1 style="font-size:36px" data-t="framesTitle">ТВОИ <em>РАМКИ</em></h1>
+  <p data-t="framesIntro">Открывай новые рамки за достижения.</p>
+  <div class="framegrid">
+    <div class="frameitem"><div class="frameart" style="color:#9ba4b5">⬡</div><b data-t="standard">Стандартная</b><p data-t="default">По умолчанию</p></div>
+    <div class="frameitem"><div class="frameart">✺</div><b data-t="fire">Огненная</b><p data-t="tenWins">10 побед</p></div>
+    <div class="frameitem"><div class="frameart" style="color:#40bfff">❖</div><b data-t="ice">Ледяная</b><p data-t="streak">5 побед подряд</p></div>
+    <div class="frameitem"><div class="frameart" style="color:#c66aff">✧</div><b data-t="phantom">Фантом</b><p data-t="proOnly">PRO</p></div>
+    <div class="frameitem"><div class="frameart" style="color:#ffd35b">✹</div><b data-t="golden">Золотая</b><p data-t="tournament">Турнир</p></div>
+    <div class="frameitem"><div class="frameart" style="color:#4bffbf">◉</div><b data-t="cyber">Кибер</b><p data-t="proOnly">PRO</p></div>
+  </div>
+  <p class="smallnote" data-t="frameDemo">Это макет коллекции. Реальное открытие рамок добавим вместе с системой достижений.</p>
+</section>
 
-    <div class="stats">
-      <div class="stat">
-        <div class="muted" data-i18n="you">ТЫ</div>
-        <div class="number" id="myScore">0</div>
-      </div>
-      <div class="stat">
-        <div class="muted" data-i18n="opponent">СОПЕРНИК</div>
-        <div class="number" id="opScore">0</div>
-      </div>
-    </div>
+<section class="screen" id="pro">
+  <div class="hero probox" style="text-align:center">
+    <div style="font-size:45px;color:var(--gold)">♛</div>
+    <div class="eyebrow">PUSH BATTLE</div>
+    <h1 style="font-size:39px">PRO <em>MODE</em></h1>
+    <p data-t="proHeadline">Больше возможностей. Быстрее прогресс.</p>
+    <div class="price">299 ₽ <span style="font-size:13px;color:var(--muted)" data-t="perMonth">/ месяц</span></div>
+    <button class="btn" style="margin-top:17px" onclick="alert(lang==='ru'?'Оплата пока не подключена.':'Payments are not connected yet.')" data-t="subscribe">Оформить подписку</button>
+  </div>
+  <div class="card">
+    <div class="listitem"><span class="orange">✓</span><span data-t="benefit1">Персональные планы тренировок</span></div>
+    <div class="listitem"><span class="orange">✓</span><span data-t="benefit2">Расширенная аналитика</span></div>
+    <div class="listitem"><span class="orange">✓</span><span data-t="benefit3">Эксклюзивные рамки</span></div>
+    <div class="listitem"><span class="orange">✓</span><span data-t="benefit4">Приоритет в подборе дуэлей</span></div>
+    <div class="listitem"><span class="orange">✓</span><span data-t="benefit5">Без рекламы</span></div>
+  </div>
+  <p class="smallnote" data-t="paymentNote">Подписка демонстрационная. Деньги не списываются.</p>
+</section>
 
-    <div class="track"><div class="fill" id="progress"></div></div>
-    <div class="camera">
-      <div id="cameraMessage">
-        <div style="font-size:40px">📷</div>
-        <p data-i18n="cameraText">Твоё видео появится здесь. Камера пока не считает отжимания автоматически.</p>
-      </div>
-      <video id="video" autoplay playsinline muted></video>
-    </div>
-    <button class="primary" onclick="startCamera()" data-i18n="cameraButton">Включить камеру</button>
-    <button class="secondary" onclick="demoRep()" data-i18n="demo">Тест: +1 повтор</button>
-    <p class="muted" data-i18n="notice">Демо-режим: онлайн-соперник и автоматический подсчёт пока не подключены.</p>
-  </section>
+<section class="screen" id="settings">
+  <div class="eyebrow" data-t="settingsLabel">НАСТРОЙКИ</div><h1 style="font-size:36px" data-t="settingsTitle">ТВОИ <em>НАСТРОЙКИ</em></h1>
+  <div class="card">
+    <div class="listitem"><span>◎</span><div style="flex:1" data-t="language">Язык</div><button class="btn outline" style="width:auto;padding:7px 12px" onclick="setLang(lang==='ru'?'en':'ru')">RU / EN</button></div>
+    <div class="listitem"><span>◉</span><div style="flex:1" data-t="theme">Неоновая тема</div><span class="orange">ON</span></div>
+    <div class="listitem"><span>♧</span><div style="flex:1" data-t="privacy">Конфиденциальность</div><span>›</span></div>
+    <div class="listitem"><span>ⓘ</span><div style="flex:1" data-t="about">О приложении</div><span>›</span></div>
+  </div>
+</section>
 </main>
-<footer> PUSH BATTLE · <span data-i18n="footer">Стань сильнее</span> </footer>
+
+<nav class="nav">
+  <button class="active" data-screen="home" onclick="navigate('home')"><span class="navicon">⌂</span><span data-t="navHome">Главная</span></button>
+  <button data-screen="duel" onclick="navigate('duel')"><span class="navicon">ϟ</span><span data-t="navDuel">Дуэли</span></button>
+  <button data-screen="rating" onclick="navigate('rating')"><span class="navicon">♜</span><span data-t="navRating">Рейтинг</span></button>
+  <button data-screen="profile" onclick="navigate('profile')"><span class="navicon">♙</span><span data-t="navProfile">Профиль</span></button>
+</nav>
+</div>
 
 <script>
-  let lang = "ru";
-  let score = 0;
-  let stream = null;
+let lang = 'ru';
+let score = 0;
+let stream = null;
+let seconds = 0;
+let timerInterval = null;
 
-  const words = {
-    ru: {
-      tag:"ТВОЯ СИЛА. ТВОЯ ПОБЕДА.",
-      headline:'БРОСЬ<br>ВЫЗОВ.<br><span>ПОБЕДИ.</span>',
-      intro:"Соревнуйся в отжиманиях с игроками онлайн. Каждый повтор приближает тебя к победе.",
-      start:"⚡ НАЙТИ СОПЕРНИКА", ready:"Готов к битве?",
-      format:"Формат дуэли", premium:"299 ₽ / месяц",
-      profile:"Твой профиль", profileText:"Выбери никнейм и стань легендой арены.",
-      save:"Сохранить никнейм", back:"← Назад",
-      duelTitle:"ДУЭЛЬ 1 НА 1", searching:"Поиск соперника...",
-      you:"ТЫ", opponent:"СОПЕРНИК",
-      cameraText:"Твоё видео появится здесь. Камера пока не считает отжимания автоматически.",
-      cameraButton:"Включить камеру", demo:"Тест: +1 повтор",
-      notice:"Демо-режим: онлайн-соперник и автоматический подсчёт пока не подключены.",
-      footer:"Стань сильнее", nickname:"Твой никнейм",
-      cameraError:"Не удалось открыть камеру. Проверь разрешение и HTTPS."
-    },
-    en: {
-      tag:"YOUR POWER. YOUR VICTORY.",
-      headline:'TAKE THE<br>CHALLENGE.<br><span>WIN.</span>',
-      intro:"Compete in push-ups against online players. Every rep brings you closer to victory.",
-      start:"⚡ FIND AN OPPONENT", ready:"Ready for battle?",
-      format:"Duel format", premium:"299 RUB / month",
-      profile:"Your profile", profileText:"Choose a nickname and become an arena legend.",
-      save:"Save nickname", back:"← Back",
-      duelTitle:"1 VS 1 DUEL", searching:"Searching for an opponent...",
-      you:"YOU", opponent:"OPPONENT",
-      cameraText:"Your video will appear here. Automatic push-up counting is not connected yet.",
-      cameraButton:"Turn on camera", demo:"Test: +1 rep",
-      notice:"Demo mode: online matchmaking and automatic counting are not connected yet.",
-      footer:"Get stronger", nickname:"Your nickname",
-      cameraError:"Could not open camera. Check permissions and HTTPS."
-    }
-  };
+const translations = {
+ru: {
+tag:'ТВОЯ СИЛА. ТВОЯ ПОБЕДА.',
+headline:'БРОСЬ ВЫЗОВ<br><em>СЕБЕ И ДРУГИМ</em>',
+intro:'Отжимайся. Побеждай. Развивайся. Стань сильнее каждый день.',
+find:'⚡ Найти соперника　›',yourWins:'ТВОИ ПОБЕДЫ',startToday:'Начни сегодня',
+yourRank:'ТВОЙ РЕЙТИНГ',joinBattle:'Войди в игру',daily:'Ежедневный вызов',
+dailyDesc:'Сделай 30 отжиманий сегодня',notStarted:'0 / 30 повторений · Ещё впереди',
+trainSmarter:'Тренируйся умнее',proShort:'Планы, аналитика и эксклюзивные рамки.',
+learnPro:'Открыть PRO　›',arena:'АРЕНА',duelTitle:'ДУЭЛЬ <em>1 НА 1</em>',
+you:'ТЫ',time:'ВРЕМЯ',opponent:'СОПЕРНИК',cameraLabel:'ТВОЯ КАМЕРА',
+cameraTitle:'Готов к раунду?',cameraDesc:'Поставь телефон так, чтобы тело было видно сбоку целиком.',
+enableCamera:'Включить камеру',testRep:'Тестовый повтор +1',
+demoNote:'Тестовый счёт не является автоматическим распознаванием. Онлайн-соперник ещё не подключён.',
+leaderboard:'ТАБЛИЦА ЛИДЕРОВ',ratingTitle:'ТОП <em>ИГРОКОВ</em>',weekly:'Эта неделя',
+champion:'Чемпион',fighter:'Боец',sampleData:'Пример оформления рейтинга — данные пока демонстрационные.',
+profileLabel:'ТВОЯ ЛИЧНОСТЬ',profileTitle:'МОЙ <em>ПРОФИЛЬ</em>',rookie:'НОВИЧОК',
+xp:'320 / 500 XP · Уровень 3',wins:'Победы',reps:'Повторения',
+nickname:'Твой никнейм',save:'Сохранить профиль',myFrames:'Мои рамки',
+frameDesc:'Собирай уникальные стили',proDesc:'Открой новые возможности',
+collection:'КОЛЛЕКЦИЯ',framesTitle:'ТВОИ <em>РАМКИ</em>',
+framesIntro:'Открывай новые рамки за достижения.',standard:'Стандартная',
+default:'По умолчанию',fire:'Огненная',tenWins:'10 побед',ice:'Ледяная',
+streak:'5 побед подряд',phantom:'Фантом',proOnly:'PRO',golden:'Золотая',
+tournament:'Турнир',cyber:'Кибер',frameDemo:'Это макет коллекции. Реальное открытие рамок добавим вместе с системой достижений.',
+proHeadline:'Больше возможностей. Быстрее прогресс.',perMonth:'/ месяц',
+subscribe:'Оформить подписку',benefit1:'Персональные планы тренировок',
+benefit2:'Расширенная аналитика',benefit3:'Эксклюзивные рамки',
+benefit4:'Приоритет в подборе дуэлей',benefit5:'Без рекламы',
+paymentNote:'Подписка демонстрационная. Деньги не списываются.',
+settingsLabel:'НАСТРОЙКИ',settingsTitle:'ТВОИ <em>НАСТРОЙКИ</em>',
+language:'Язык',theme:'Неоновая тема',privacy:'Конфиденциальность',
+about:'О приложении',navHome:'Главная',navDuel:'Дуэли',navRating:'Рейтинг',
+navProfile:'Профиль'
+},
+en: {
+tag:'YOUR POWER. YOUR VICTORY.',
+headline:'TAKE THE<br>CHALLENGE.<br><em>BEAT THE REST</em>',
+intro:'Do push-ups. Win battles. Get stronger every day.',
+find:'⚡ Find an opponent　›',yourWins:'YOUR WINS',startToday:'Start today',
+yourRank:'YOUR RANK',joinBattle:'Enter the arena',daily:'Daily challenge',
+dailyDesc:'Complete 30 push-ups today',notStarted:'0 / 30 reps · Keep going',
+trainSmarter:'Train smarter',proShort:'Plans, analytics and exclusive frames.',
+learnPro:'Explore PRO　›',arena:'ARENA',duelTitle:'1 VS 1 <em>DUEL</em>',
+you:'YOU',time:'TIME',opponent:'OPPONENT',cameraLabel:'YOUR CAMERA',
+cameraTitle:'Ready for the round?',cameraDesc:'Position your phone so your full body is visible from the side.',
+enableCamera:'Enable camera',testRep:'Test rep +1',
+demoNote:'Test score is not automatic recognition. Online matchmaking is not connected yet.',
+leaderboard:'LEADERBOARD',ratingTitle:'TOP <em>PLAYERS</em>',weekly:'This week',
+champion:'Champion',fighter:'Fighter',sampleData:'Sample leaderboard design. Scores are illustrative.',
+profileLabel:'YOUR IDENTITY',profileTitle:'MY <em>PROFILE</em>',rookie:'ROOKIE',
+xp:'320 / 500 XP · Level 3',wins:'Wins',reps:'Reps',
+nickname:'Your nickname',save:'Save profile',myFrames:'My frames',
+frameDesc:'Collect unique styles',proDesc:'Unlock more features',
+collection:'COLLECTION',framesTitle:'YOUR <em>FRAMES</em>',
+framesIntro:'Unlock frames by earning achievements.',standard:'Standard',
+default:'Default',fire:'Inferno',tenWins:'10 wins',ice:'Ice',
+streak:'5 wins in a row',phantom:'Phantom',proOnly:'PRO',golden:'Golden',
+tournament:'Tournament',cyber:'Cyber',frameDemo:'Frame collection preview. Achievement unlocks will be implemented later.',
+proHeadline:'More features. Faster progress.',perMonth:'/ month',
+subscribe:'Subscribe',benefit1:'Personal training plans',
+benefit2:'Advanced analytics',benefit3:'Exclusive frames',
+benefit4:'Priority matchmaking',benefit5:'Ad-free experience',
+paymentNote:'Subscription is a preview. No payment is taken.',
+settingsLabel:'SETTINGS',settingsTitle:'YOUR <em>SETTINGS</em>',
+language:'Language',theme:'Neon theme',privacy:'Privacy',
+about:'About',navHome:'Home',navDuel:'Duels',navRating:'Ranking',
+navProfile:'Profile'
+}
+};
 
-  function toggleLanguage() {
-    lang = lang === "ru" ? "en" : "ru";
-    document.documentElement.lang = lang;
-    document.querySelectorAll("[data-i18n]").forEach(el => {
-      el.innerHTML = words[lang][el.dataset.i18n];
+function setLang(value) {
+  lang = value;
+  document.documentElement.lang = value;
+  document.getElementById('ruBtn').classList.toggle('active',value==='ru');
+  document.getElementById('enBtn').classList.toggle('active',value==='en');
+  document.querySelectorAll('[data-t]').forEach(el => {
+    const key = el.dataset.t;
+    if (translations[value][key]) el.innerHTML = translations[value][key];
+  });
+  document.getElementById('nickname').placeholder =
+    value==='ru' ? 'Введи никнейм' : 'Enter nickname';
+}
+
+function navigate(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById(id);
+  if (target) target.classList.add('active');
+  document.querySelectorAll('.nav button').forEach(b => {
+    b.classList.toggle('active',b.dataset.screen===id ||
+      (id==='frames' || id==='pro' || id==='settings') && b.dataset.screen==='profile');
+  });
+  if (id!=='duel') stopTimer();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+async function startCamera() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    alert(lang==='ru'?'Камера требует HTTPS и современный браузер.':'Camera requires HTTPS and a modern browser.');
+    return;
+  }
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:'user'},audio:false
     });
-    document.getElementById("nickname").placeholder = words[lang].nickname;
+    const video = document.getElementById('video');
+    video.srcObject = stream;
+    video.style.display = 'block';
+    document.getElementById('cameraMessage').style.display = 'none';
+    startTimer();
+  } catch (e) {
+    alert(lang==='ru'?'Нет доступа к камере. Разреши доступ в настройках браузера.':'Camera access denied. Allow access in browser settings.');
   }
+}
 
-  function showDuel() {
-    document.getElementById("home").classList.add("hidden");
-    document.getElementById("duel").classList.remove("hidden");
-    document.getElementById("status").textContent = words[lang].searching;
+function startTimer() {
+  if (timerInterval) return;
+  timerInterval = setInterval(() => {
+    seconds++;
+    document.getElementById('timer').textContent =
+      String(Math.floor(seconds/60)).padStart(2,'0')+':'+
+      String(seconds%60).padStart(2,'0');
+  },1000);
+}
+function stopTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+}
+function demoRep() {
+  score++;
+  document.getElementById('myScore').textContent = score;
+  document.getElementById('profileReps').textContent = score;
+  const opponent = Number(document.getElementById('opScore').textContent);
+  const total = score + opponent;
+  const percent = total ? Math.round(score/total*100) : 50;
+  document.getElementById('progress').style.width = percent+'%';
+  document.getElementById('myPercent').textContent = percent+'%';
+  document.getElementById('opPercent').textContent = (100-percent)+'%';
+}
+function saveNickname() {
+  const input = document.getElementById('nickname');
+  const name = input.value.trim();
+  if (!name) {
+    alert(lang==='ru'?'Введи никнейм.':'Enter a nickname.');
+    return;
   }
-
-  function showHome() {
-    document.getElementById("duel").classList.add("hidden");
-    document.getElementById("home").classList.remove("hidden");
-    if (stream) stream.getTracks().forEach(track => track.stop());
-    stream = null;
-    document.getElementById("video").srcObject = null;
-    document.getElementById("video").style.display = "none";
-    document.getElementById("cameraMessage").style.display = "block";
-  }
-
-  async function startCamera() {
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user" }, audio: false
-      });
-      const video = document.getElementById("video");
-      video.srcObject = stream;
-      video.style.display = "block";
-      document.getElementById("cameraMessage").style.display = "none";
-    } catch (e) {
-      alert(words[lang].cameraError);
-    }
-  }
-
-  function demoRep() {
-    score++;
-    document.getElementById("myScore").textContent = score;
-    const opponent = Number(document.getElementById("opScore").textContent);
-    const percent = score + opponent === 0 ? 50 :
-      Math.round(score / (score + opponent) * 100);
-    document.getElementById("progress").style.width = percent + "%";
-  }
-
-  function saveNickname() {
-    const name = document.getElementById("nickname").value.trim();
-    if (!name) return;
-    document.getElementById("savedName").textContent = name;
-  }
+  document.getElementById('profileName').textContent = name;
+  alert(lang==='ru'?'Никнейм обновлён на этой странице.':'Nickname updated on this page.');
+}
+window.addEventListener('pagehide',() => {
+  if (stream) stream.getTracks().forEach(track=>track.stop());
+});
 </script>
 </body>
 </html>
