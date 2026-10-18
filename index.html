@@ -1,0 +1,239 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080d18">
+  <title>Push Battle</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: #080d18; color: #f4f7ff;
+      font-family: Arial, sans-serif;
+    }
+    header {
+      display: flex; justify-content: space-between;
+      align-items: center; padding: 20px;
+      border-bottom: 1px solid #1d2b42;
+    }
+    .logo { font-size: 22px; font-weight: 900; }
+    .logo span { color: #28d7ff; }
+    button {
+      color: white; background: #14233a; border: 1px solid #2a4262;
+      border-radius: 12px; padding: 12px 16px;
+      font-size: 15px; cursor: pointer;
+    }
+    button:active { transform: scale(.98); }
+    .lang { color: #28d7ff; }
+    main { max-width: 650px; margin: auto; padding: 28px 18px; }
+    .tag {
+      color: #28d7ff; font-size: 12px; letter-spacing: 2px;
+      font-weight: bold;
+    }
+    h1 { font-size: clamp(36px, 9vw, 58px); margin: 14px 0; }
+    h1 span { color: #28d7ff; }
+    p { color: #9eacc3; line-height: 1.6; }
+    .primary {
+      width: 100%; background: #167dff; border: 0;
+      padding: 17px; font-weight: bold; margin-top: 12px;
+    }
+    .panel {
+      background: #0e1727; border: 1px solid #22344f;
+      border-radius: 18px; padding: 20px; margin-top: 22px;
+    }
+    .panel h2 { margin-top: 0; }
+    .stats { display: flex; gap: 10px; }
+    .stat {
+      flex: 1; background: #101e32; padding: 14px;
+      border-radius: 12px; min-width: 0;
+    }
+    .number { font-size: 23px; font-weight: bold; color: #28d7ff; }
+    .track {
+      height: 12px; background: #24344b;
+      border-radius: 20px; overflow: hidden; margin: 15px 0;
+    }
+    .fill {
+      height: 100%; width: 50%;
+      background: linear-gradient(90deg, #167dff, #28e4ff);
+      border-radius: 20px; transition: width .3s;
+    }
+    .camera {
+      min-height: 210px; background: #050910;
+      border: 1px solid #243650; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center; padding: 18px; margin-top: 14px;
+    }
+    .camera video {
+      width: 100%; border-radius: 10px; display: none;
+    }
+    .secondary { width: 100%; margin-top: 10px; }
+    .hidden { display: none; }
+    .muted { font-size: 13px; }
+    footer { text-align: center; padding: 25px; color: #73839c; }
+  </style>
+</head>
+<body>
+<header>
+  <div class="logo">PUSH <span>BATTLE</span></div>
+  <button class="lang" id="language" onclick="toggleLanguage()">RU / EN</button>
+</header>
+
+<main>
+  <section id="home">
+    <div class="tag" data-i18n="tag">ТВОЯ СИЛА. ТВОЯ ПОБЕДА.</div>
+    <h1 data-i18n="headline">БРОСЬ<br>ВЫЗОВ.<br><span>ПОБЕДИ.</span></h1>
+    <p data-i18n="intro">Соревнуйся в отжиманиях с игроками онлайн. Каждый повтор приближает тебя к победе.</p>
+    <button class="primary" onclick="showDuel()" data-i18n="start">⚡ НАЙТИ СОПЕРНИКА</button>
+
+    <div class="panel">
+      <h2 data-i18n="ready">Готов к битве?</h2>
+      <div class="stats">
+        <div class="stat">
+          <div class="number">1 vs 1</div>
+          <div class="muted" data-i18n="format">Формат дуэли</div>
+        </div>
+        <div class="stat">
+          <div class="number">PRO</div>
+          <div class="muted" data-i18n="premium">299 ₽ / месяц</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2 data-i18n="profile">Твой профиль</h2>
+      <p data-i18n="profileText">Выбери никнейм и стань легендой арены.</p>
+      <input id="nickname" maxlength="20" placeholder="Твой никнейм"
+        style="width:100%;padding:13px;border-radius:10px;border:1px solid #2a4262;background:#080d18;color:white">
+      <button class="secondary" onclick="saveNickname()" data-i18n="save">Сохранить никнейм</button>
+      <p id="savedName" class="muted"></p>
+    </div>
+  </section>
+
+  <section id="duel" class="hidden">
+    <button onclick="showHome()" data-i18n="back">← Назад</button>
+    <h2 data-i18n="duelTitle">ДУЭЛЬ 1 НА 1</h2>
+    <p id="status" data-i18n="searching">Поиск соперника...</p>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="muted" data-i18n="you">ТЫ</div>
+        <div class="number" id="myScore">0</div>
+      </div>
+      <div class="stat">
+        <div class="muted" data-i18n="opponent">СОПЕРНИК</div>
+        <div class="number" id="opScore">0</div>
+      </div>
+    </div>
+
+    <div class="track"><div class="fill" id="progress"></div></div>
+    <div class="camera">
+      <div id="cameraMessage">
+        <div style="font-size:40px">📷</div>
+        <p data-i18n="cameraText">Твоё видео появится здесь. Камера пока не считает отжимания автоматически.</p>
+      </div>
+      <video id="video" autoplay playsinline muted></video>
+    </div>
+    <button class="primary" onclick="startCamera()" data-i18n="cameraButton">Включить камеру</button>
+    <button class="secondary" onclick="demoRep()" data-i18n="demo">Тест: +1 повтор</button>
+    <p class="muted" data-i18n="notice">Демо-режим: онлайн-соперник и автоматический подсчёт пока не подключены.</p>
+  </section>
+</main>
+<footer> PUSH BATTLE · <span data-i18n="footer">Стань сильнее</span> </footer>
+
+<script>
+  let lang = "ru";
+  let score = 0;
+  let stream = null;
+
+  const words = {
+    ru: {
+      tag:"ТВОЯ СИЛА. ТВОЯ ПОБЕДА.",
+      headline:'БРОСЬ<br>ВЫЗОВ.<br><span>ПОБЕДИ.</span>',
+      intro:"Соревнуйся в отжиманиях с игроками онлайн. Каждый повтор приближает тебя к победе.",
+      start:"⚡ НАЙТИ СОПЕРНИКА", ready:"Готов к битве?",
+      format:"Формат дуэли", premium:"299 ₽ / месяц",
+      profile:"Твой профиль", profileText:"Выбери никнейм и стань легендой арены.",
+      save:"Сохранить никнейм", back:"← Назад",
+      duelTitle:"ДУЭЛЬ 1 НА 1", searching:"Поиск соперника...",
+      you:"ТЫ", opponent:"СОПЕРНИК",
+      cameraText:"Твоё видео появится здесь. Камера пока не считает отжимания автоматически.",
+      cameraButton:"Включить камеру", demo:"Тест: +1 повтор",
+      notice:"Демо-режим: онлайн-соперник и автоматический подсчёт пока не подключены.",
+      footer:"Стань сильнее", nickname:"Твой никнейм",
+      cameraError:"Не удалось открыть камеру. Проверь разрешение и HTTPS."
+    },
+    en: {
+      tag:"YOUR POWER. YOUR VICTORY.",
+      headline:'TAKE THE<br>CHALLENGE.<br><span>WIN.</span>',
+      intro:"Compete in push-ups against online players. Every rep brings you closer to victory.",
+      start:"⚡ FIND AN OPPONENT", ready:"Ready for battle?",
+      format:"Duel format", premium:"299 RUB / month",
+      profile:"Your profile", profileText:"Choose a nickname and become an arena legend.",
+      save:"Save nickname", back:"← Back",
+      duelTitle:"1 VS 1 DUEL", searching:"Searching for an opponent...",
+      you:"YOU", opponent:"OPPONENT",
+      cameraText:"Your video will appear here. Automatic push-up counting is not connected yet.",
+      cameraButton:"Turn on camera", demo:"Test: +1 rep",
+      notice:"Demo mode: online matchmaking and automatic counting are not connected yet.",
+      footer:"Get stronger", nickname:"Your nickname",
+      cameraError:"Could not open camera. Check permissions and HTTPS."
+    }
+  };
+
+  function toggleLanguage() {
+    lang = lang === "ru" ? "en" : "ru";
+    document.documentElement.lang = lang;
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+      el.innerHTML = words[lang][el.dataset.i18n];
+    });
+    document.getElementById("nickname").placeholder = words[lang].nickname;
+  }
+
+  function showDuel() {
+    document.getElementById("home").classList.add("hidden");
+    document.getElementById("duel").classList.remove("hidden");
+    document.getElementById("status").textContent = words[lang].searching;
+  }
+
+  function showHome() {
+    document.getElementById("duel").classList.add("hidden");
+    document.getElementById("home").classList.remove("hidden");
+    if (stream) stream.getTracks().forEach(track => track.stop());
+    stream = null;
+    document.getElementById("video").srcObject = null;
+    document.getElementById("video").style.display = "none";
+    document.getElementById("cameraMessage").style.display = "block";
+  }
+
+  async function startCamera() {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user" }, audio: false
+      });
+      const video = document.getElementById("video");
+      video.srcObject = stream;
+      video.style.display = "block";
+      document.getElementById("cameraMessage").style.display = "none";
+    } catch (e) {
+      alert(words[lang].cameraError);
+    }
+  }
+
+  function demoRep() {
+    score++;
+    document.getElementById("myScore").textContent = score;
+    const opponent = Number(document.getElementById("opScore").textContent);
+    const percent = score + opponent === 0 ? 50 :
+      Math.round(score / (score + opponent) * 100);
+    document.getElementById("progress").style.width = percent + "%";
+  }
+
+  function saveNickname() {
+    const name = document.getElementById("nickname").value.trim();
+    if (!name) return;
+    document.getElementById("savedName").textContent = name;
+  }
+</script>
+</body>
+</html>
